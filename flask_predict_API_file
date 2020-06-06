@@ -1,0 +1,31 @@
+from flask import Flask, request
+import pickle
+from flask import Flask, request
+from flasgger import Swagger
+import pandas as pd
+import numpy as np
+
+with open('./rf.pkl', 'rb') as model_file:
+    model = pickle.load(model_file)
+
+app = Flask(__name__)
+swagger = Swagger(app)
+
+
+@app.route('/predict_file', methods=['POST'])
+def predict_iris():
+    """Example
+        ---
+        parameters:
+            - name: input_file
+              in: fromData
+              type: file
+              required: true
+       """
+    input_data = pd.read_csv(request.files.get("input_file"))
+    prediction = model.predict(input_data)
+    return str(list(prediction))
+
+
+if __name__ == '__main__':
+    app.run()
